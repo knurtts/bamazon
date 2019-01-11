@@ -9,7 +9,6 @@ var connection = mysql.createConnection({
     database: "bamazon"
 });
 
-
 function start() {
     inquirer.prompt([
         {
@@ -23,22 +22,40 @@ function start() {
             message: "How many would you like?"
         }
     ]).then(function(answer) {
-        placeOrder(answer);
+        placeOrder(answer.prodId, answer.count);
     });
 };
 
-function placeOrder(arg) {
-        //check product quantity
-        //if db has too few log "We don't have that many"
-            //log "We don't have that many"
-            //end connection
-            //go back to begining of prompt
-        //else if db has enough, fill the order
-            //subtract count from the quantity
-            //take price * count store in var total
-            //display total
-            //end connection
-        console.log("Success!");        
+function placeOrder(id, count) {
+
+    connection.query("SELECT * FROM products WHERE ?",
+    {
+        id: id
+    }, 
+    function(err, res) {
+        var quantity = res[0].stock_quantity;
+        var name = res[0].product_name;
+        var price = res[0].price * count;
+        if (quantity < count) {
+            console.log("We only have "+quantity+" "+name+" in stock.")
+            console.log("Please try again.");
+            start();
+        } else {
+            var newNum = quantity-count;
+            connection.query("UPDATE products SET ? WHERE ?",
+            [{
+                stock_quantity: newNum
+            },
+            {
+                id: id
+            }],
+            function(err, res) {
+                console.log("Order placed for "+count+" "+name+"!");
+                console.log("Total: $"+price);
+            });
+        }
+        connection.end();
+    });
 };
 
 start();
