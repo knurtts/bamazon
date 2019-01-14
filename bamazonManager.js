@@ -30,11 +30,55 @@ function start() {
             case "View Low Inventory":
               lowInvenory();
               break;
-            case "Add to Inventory":
-              addInventory();
-              break;
             case "Add New Product":
-              newProduct();
+              inquirer.prompt([
+                  {
+                      type: "input",
+                      name: "prodName",
+                      message: "What is the name of your new product? ",
+                  },
+                  {
+                      type: "list",
+                      name: "dept",
+                      message: "Pick a department for the product. ",
+                      choices: [
+                          "Legendary Items",
+                          "Food",
+                          "Apliances",
+                          "Wiretap",
+                          "Music",
+                          "Dangerous Animals"
+                      ]
+                  },
+                  {
+                      type: "input",
+                      name: "price",
+                      message: "Set the price for the product."
+                  },
+                  {
+                      type: "input",
+                      name: "quantity",
+                      message: "How many are you adding to the inventory?"
+                  }
+              ]).then(function(res) {
+                newProduct(res);
+              });
+              break;
+            case "Add to Inventory":
+              inquirer.prompt([
+                {
+                    type: "input",
+                    name: "product",
+                    message: "Which product's quantity would you like to update?"
+                },
+                {
+                    type: "input",
+                    name: "quantity",
+                    message: "What is the new quantity of this product?"
+                }
+            ]).then(function(res) {
+                addInventory(res);
+              })
               break;
         }
     });
@@ -63,14 +107,33 @@ function lowInvenory() {
     
 };
 
-function addInventory() {
-    console.log("add to");
-    
+function newProduct(res) {
+    connection.query("INSERT INTO products SET ?",
+    {
+        product_name: res.prodName,
+        department_name: res.dept,
+        price: res.price,
+        stock_quantity: res.quantity
+    }, function(err, res) {
+        if (err) throw err;
+        console.log("Item added!");
+    });   
 };
 
-function newProduct() {
-    console.log("add new");
-    
+function addInventory(res) {
+    //res.product res.quantity
+    connection.query("UPDATE products SET ? WHERE ?",
+    [{
+        stock_quantity: res.quantity
+    },
+    {
+        product_name: res.product
+    }],
+    function(err, res) {
+        if (err) throw err;
+        console.log("Quantity updated!");
+        connection.end();
+    });
 };
 
 start();
