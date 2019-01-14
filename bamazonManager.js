@@ -41,12 +41,25 @@ function start() {
 };
 
 function getProducts() {
-    console.log("get all");
-    
+    connection.query("SELECT * FROM products", 
+    function(err, res) {
+        console.log("All items in inventory:");
+        for (let i = 0; i < res.length; i++) {
+            console.log(`ID: ${res[i].id} | Name: ${res[i].product_name} | Department: ${res[i].department_name} | Price: ${res[i].price} | Quantity: ${res[i].stock_quantity}`);
+        }
+        connection.end();
+    })
 };
 
 function lowInvenory() {
-    console.log("get low");
+    connection.query("SELECT * FROM products WHERE stock_quantity <= 10",
+    function(err, res) {
+        console.log("These items have a quantity of 10 or less:");
+        for (let i = 0; i < res.length; i++) {
+            console.log(`ID: ${res[i].id} | Name: ${res[i].product_name} | Department: ${res[i].department_name} | Price: ${res[i].price} | Quantity: ${res[i].stock_quantity}`);
+        }
+        connection.end();
+    })
     
 };
 
