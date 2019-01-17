@@ -44,7 +44,8 @@ function placeOrder(id, count) {
             var newNum = quantity-count;
             connection.query("UPDATE products SET ? WHERE ?",
             [{
-                stock_quantity: newNum
+                stock_quantity: newNum,
+                product_sales: price
             },
             {
                 id: id
